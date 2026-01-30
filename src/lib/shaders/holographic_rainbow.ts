@@ -91,7 +91,7 @@ export const HolographicShaderOverride = (material: THREE.MeshBasicMaterial, cur
             finalColor += shimmer * 0.3;
             
             // Overall brightness
-            finalColor *= 0.87;
+            finalColor *= 0.69;
             
             vec4 diffuseColor = vec4(finalColor, opacity);
             `

@@ -1,20 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { ReactLenis } from "@/lib/lenis"
+import { ThemeProvider } from "./components/theme-context";
+import { geistSans , geistMono } from "./components/fonts";
 
 export const metadata: Metadata = {
-  title: "Mobin H Portfolio",
-  description: "Welcome to my portfolio!",
+  title: "Mobin H",
+  description: "Computer science graduate and web developer",
 };
 
 export default function RootLayout({
@@ -27,7 +19,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <ThemeProvider>
+          <ReactLenis root>
+            {children}
+          </ReactLenis>
+        </ThemeProvider>
       </body>
     </html>
   );

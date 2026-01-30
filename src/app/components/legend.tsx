@@ -20,6 +20,12 @@ export default function Legend() {
   const mountRef = useRef<HTMLDivElement>(null);
   const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const mouse = useMousePosition();
+  const isMobile = useRef(false);
+
+  useEffect(() => {
+    isMobile.current = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent)
+      || window.innerWidth <= 768;
+  }, []);
 
   useEffect(() => {
     if (mouse.x !== null && mouse.y !== null) {
@@ -33,7 +39,7 @@ export default function Legend() {
     const mainScene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera(
-      75,
+      isMobile.current ? 60 : 75,
       mountRef.current.clientWidth / mountRef.current.clientHeight,
       0.1,
       4000
@@ -127,7 +133,7 @@ export default function Legend() {
         vertexColors: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
-        opacity: 1,
+        opacity: isMobile.current ? 0.6 : 1,
     });
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
 
@@ -136,7 +142,7 @@ export default function Legend() {
     // Load font + create text
     const fontLoader = new FontLoader();
     fontLoader.load("/three_fonts/Lexend_Giga_Regular.json", (font) => {
-      const textGeometry = new TextGeometry("mobinh.dev", {
+      const textGeometry = new TextGeometry("mobin h.", {
         font: font,
         size: 3,
         depth: 0.5,
@@ -157,7 +163,7 @@ export default function Legend() {
       material.onBeforeCompile = HolographicShaderOverride.bind(null, material);
 
       const textMesh = new THREE.Mesh(textGeometry, material);
-      textMesh.position.z = -25;
+      textMesh.position.z = isMobile.current ? -45 : -25;
 
       mainScene.add(textMesh);
 
@@ -168,12 +174,16 @@ export default function Legend() {
           material.userData.shader.uniforms.time.value = performance.now() * 0.001;
         }
 
-        // Rotate text to face mouse position
-        if (mountRef.current) {
+        // Rotate text to face mouse position except on mobile
+        if (mountRef.current && !isMobile.current) {
           const xNorm = (mouseRef.current.x / mountRef.current.clientWidth) * 2 - 1;
           const yNorm = -(mouseRef.current.y / mountRef.current.clientHeight) * 2 + 1;
-          textMesh.rotation.y = xNorm * 0.1; 
+          textMesh.rotation.y = xNorm * 0.1;
           textMesh.rotation.x = yNorm * -0.1;
+        } else if (isMobile.current) {
+          const time = performance.now() * 0.0005;
+          textMesh.rotation.y = Math.sin(time) * 0.1;
+          textMesh.rotation.x = Math.cos(time * 0.8) * 0.05;
         }
 
         const positions = particlesGeometry.attributes.position.array;

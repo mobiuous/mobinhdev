@@ -59,6 +59,7 @@ export function PulseEffect() {
 
     return () => {
       document.removeEventListener("click", handleClick);
+
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }

@@ -11,7 +11,7 @@ export default function Home() {
       <PulseEffect />
       <Legend />
 
-      <div className="flex flex-col items-center justify-center bg-primary min-h-screen px-4">
+      <div id="main-content" className="flex flex-col items-center justify-center bg-primary min-h-screen px-4">
         <div className="max-w-xl w-full text-center select-none">
           <Image
             src="/img/profile.png"

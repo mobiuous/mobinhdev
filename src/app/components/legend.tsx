@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useLenis } from "@/lib/lenis"
 import * as THREE from "three";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js"
@@ -21,6 +22,7 @@ export default function Legend() {
   const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const mouse = useMousePosition();
   const isMobile = useRef(false);
+  const lenis = useLenis();
 
   useEffect(() => {
     isMobile.current = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent)
@@ -66,21 +68,18 @@ export default function Legend() {
     mainComposer.addPass(outputPass);
     mountRef.current.appendChild(renderer.domElement);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);  // Increased intensity and changed to white
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     mainScene.add(ambientLight);
 
-    // Brighter key light
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);  // Increased intensity
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
     keyLight.position.set(5, 5, 5);
     mainScene.add(keyLight);
 
-    // Brighter fill light
-    const fillLight = new THREE.DirectionalLight(0xffffff, 1.3);  // Increased intensity
+    const fillLight = new THREE.DirectionalLight(0xffffff, 1.3);
     fillLight.position.set(-5, 2, -5);
     mainScene.add(fillLight);
 
-    // Brighter rim light
-    const rimLight = new THREE.DirectionalLight(0x88ccff, 2);  // Increased intensity
+    const rimLight = new THREE.DirectionalLight(0x88ccff, 2);
     rimLight.position.set(0, 5, -30);
     mainScene.add(rimLight);
 
@@ -105,7 +104,7 @@ export default function Legend() {
         const widthStdDev = (visibleArea.right - visibleArea.left) / 4;
         const heightStdDev = (visibleArea.top - visibleArea.bottom) / 4;
 
-        // Generate positions using Gaussian distribution
+        // Generate positions with Gaussian distribution
         positionBuffer[i * 3] = randomGaussian(centerX, widthStdDev);
         positionBuffer[i * 3 + 1] = randomGaussian(centerY, heightStdDev);
         positionBuffer[i * 3 + 2] = (Math.random() * -40) - -40;
@@ -115,6 +114,11 @@ export default function Legend() {
         colorBuffer[i * 4 + 2] = 1.0; // B
         colorBuffer[i * 4 + 3] = 0.0; // A
       }
+    }
+
+    const clearParticles = () => {
+      positionBuffer.fill(0);
+      colorBuffer.fill(0);
     }
 
     spawnParticles(particlesCount);
@@ -133,7 +137,7 @@ export default function Legend() {
         vertexColors: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
-        opacity: isMobile.current ? 0.6 : 1,
+        opacity: isMobile.current ? 0.75 : 1,
     });
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
 
@@ -163,7 +167,7 @@ export default function Legend() {
       material.onBeforeCompile = HolographicShaderOverride.bind(null, material);
 
       const textMesh = new THREE.Mesh(textGeometry, material);
-      textMesh.position.z = isMobile.current ? -45 : -25;
+      textMesh.position.z = isMobile.current ? -50 : -25;
 
       mainScene.add(textMesh);
 
@@ -203,19 +207,15 @@ export default function Legend() {
             camera,
           );
 
-          // Move particles slowly
           positions[positionIndex + 2] += particleSpeeds[i];
 
-          // Apply attractive force to mouse
           positions[positionIndex] += repulsionX;
           positions[positionIndex + 1] += repulsionY;
 
-          // Fade in particles
           if (colors[colorIndex + 3] < 1.0) {
               colors[colorIndex + 3] = Math.min(colors[colorIndex + 3] + 0.01, 1.0);
           }
 
-          // Wrap around when particles go too far
           if (positions[positionIndex + 2] > 0) {
             const centerX = (visibleArea.right + visibleArea.left) / 2;
             const centerY = (visibleArea.top + visibleArea.bottom) / 2;
@@ -238,7 +238,6 @@ export default function Legend() {
       animate();
     });
 
-    // Handle window resize
     const handleResize = () => {
       if (!mountRef.current) return;
   
@@ -251,6 +250,9 @@ export default function Legend() {
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.setSize(width, height);
       mainComposer.setSize(width, height);
+
+      clearParticles();
+      spawnParticles(calculateParticleCount(mountRef.current.clientWidth, mountRef.current.clientHeight));
     };
 
     window.addEventListener('resize', handleResize);
@@ -262,5 +264,30 @@ export default function Legend() {
     };
   }, []);
 
-  return <div ref={mountRef} className="w-full h-screen" />;
+  const scrollToMain = () => {
+    const mainSection = document.getElementById('main-content');
+    
+    if (mainSection && lenis) {
+      lenis.scrollTo(mainSection, {
+        offset: 0,
+        duration: 1.5,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+      });
+    }
+  };
+
+  return (
+    <div ref={mountRef} className="w-full h-screen relative">
+      <button
+        onClick={scrollToMain}
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full p-3 transition-all duration-300 animate-bounce cursor-pointer"
+        aria-label="Scroll to main content"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M19 14l-7 7-7-7" />
+          <path d="M19 6l-7 7-7-7" />
+        </svg>
+      </button>
+    </div>
+  );
 }

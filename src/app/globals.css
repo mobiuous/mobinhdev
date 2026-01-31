@@ -5,6 +5,7 @@
   --text-primary: #1c0d0a;
   --text-secondary: #bc5644;
   --accent: #b2ce75;
+  --bg-accent: #bc5644;
   --accent-secondary: #d7db99;
 }
 
@@ -13,6 +14,7 @@
   --text-primary: #f6e8e5;
   --text-secondary: #bb5644;
   --accent: #6f8c31;
+  --bg-accent: #bb5644;
   --accent-secondary: #616624;
 }
 
@@ -37,6 +39,10 @@ body {
   -webkit-transition: background-color 0.3s ease;
   -ms-transition: background-color 0.3s ease;
   background-color: var(--bg-primary);
+}
+
+.bg-accent {
+  background-color: var(--bg-accent);
 }
 
 .text-primary {

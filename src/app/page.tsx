@@ -2,6 +2,7 @@ import Image from "next/image";
 import Legend from "./components/legend";
 import { PulseEffect } from "./components/pulse-effect";
 import ThemeToggle from "./components/theme-toggle";
+import Navigation from "./components/navigation";
 import { inter } from "./components/fonts";
 
 export default function Home() {
@@ -9,9 +10,10 @@ export default function Home() {
     <>
       <ThemeToggle />
       <PulseEffect />
+      <Navigation />
       <Legend />
 
-      <div id="main-content" className="flex flex-col items-center justify-center bg-primary min-h-screen px-4">
+      <div id="main-content" className="flex flex-col items-center justify-center bg-primary h-screen px-4">
         <div className="max-w-xl w-full text-center select-none">
           <Image
             src="/img/profile.png"

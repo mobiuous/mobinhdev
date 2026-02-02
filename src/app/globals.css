@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+.preload * {
+  transition: none !important;
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -ms-transition: none !important;
+  -o-transition: none !important;
+}
+
 :root {
   --bg-primary: #fcf8f8;
   --text-primary: #1c0d0a;
@@ -7,6 +15,7 @@
   --accent: #b2ce75;
   --bg-accent: #bc5644;
   --accent-secondary: #d7db99;
+  --contrast-color: #000000;
 }
 
 [data-theme="dark"] {
@@ -16,6 +25,7 @@
   --accent: #6f8c31;
   --bg-accent: #bb5644;
   --accent-secondary: #616624;
+  --contrast-color: #ffffff;
 }
 
 [data-theme="dark"] img[src$=".svg"] {
@@ -33,31 +43,41 @@ body {
   -ms-transition: color 0.3s ease;
 }
 
-.bg-primary {
-  transition: background-color 0.3s ease;
-  -webkit-transition: background-color 0.3s ease;
-  -ms-transition: background-color 0.3s ease;
-  background-color: var(--bg-primary);
-}
+@layer utilities {
+  .bg-primary {
+    transition: background-color 0.3s ease;
+    -webkit-transition: background-color 0.3s ease;
+    -ms-transition: background-color 0.3s ease;
+    background-color: var(--bg-primary);
+  }
 
-.bg-accent {
-  background-color: var(--bg-accent);
-}
+  .bg-accent {
+    background-color: var(--bg-accent);
+  }
 
-.text-primary {
-  color: var(--text-primary);
-}
+  .bg-accent-dark {
+    background-color: #a14939
+  }
 
-.text-secondary {
-  color: var(--text-secondary);
-}
+  .text-primary {
+    color: var(--text-primary);
+  }
 
-.accent {
-  color: var(--accent);
-}
+  .text-secondary {
+    color: var(--text-secondary);
+  }
 
-.accent-secondary {
-  color: var(--accent-secondary);
+  .accent {
+    color: var(--accent);
+  }
+
+  .accent-secondary {
+    color: var(--accent-secondary);
+  }
+
+  .contrast-color {
+    color: var(--contrast-color);
+  }
 }
 
 @keyframes pulse-expand {

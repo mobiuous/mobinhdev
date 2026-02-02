@@ -3,6 +3,7 @@ import Legend from "./components/legend";
 import { PulseEffect } from "./components/pulse-effect";
 import ThemeToggle from "./components/theme-toggle";
 import Navigation from "./components/navigation";
+import DottedGridBackground from "./components/dotted-grid-background";
 import { inter } from "./components/fonts";
 
 export default function Home() {
@@ -13,8 +14,9 @@ export default function Home() {
       <Navigation />
       <Legend />
 
-      <div id="main-content" className="flex flex-col items-center justify-center bg-primary h-screen px-4">
-        <div className="max-w-xl w-full text-center select-none">
+      <div id="main-content" className="flex flex-col items-center justify-center bg-primary h-screen px-4 relative overflow-hidden">
+        <DottedGridBackground />
+        <div className="max-w-xl w-full text-center select-none relative z-10">
           <Image
             src="/img/profile.png"
             alt="Profile"
@@ -23,7 +25,7 @@ export default function Home() {
             className="rounded-full mx-auto mb-6"
           />
           <p className={`text-5xl text-primary mb-6 select-none ${inter.className}`}>
-            <span className="text-secondary">Hello!</span> I'm Mobin.<br />
+            <span className="text-secondary">Hello!</span> I'm Mobin<br />
             <span className="text-3xl">Welcome to my website/portfolio &#128516;</span>
           </p>
           <div className="flex justify-center gap-4">

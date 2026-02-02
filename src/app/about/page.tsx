@@ -16,26 +16,16 @@ export default function About() {
           
           <div className="bg-secondary rounded-lg p-8 shadow-lg border-themed text-left">
             <p className="text-primary mb-4">
-              Hello! I'm Mobin, a computer science graduate with a passion for cloud systems and AI.
+              Hello! Welcome to the about
             </p>
             
             <p className="text-primary mb-4">
-              I enjoy creating interactive web experiences and working with cutting-edge technologies.
-              This website showcases some of my work and interests.
+              Hello! Welcome to the about Hello! Welcome to the about Hello! Welcome to the about Hello! Welcome to the about
             </p>
             
             <p className="text-primary">
-              Feel free to explore and get in touch if you'd like to connect!
+              Hello! Welcome to the about Hello! Welcome to the about
             </p>
-          </div>
-
-          <div className="mt-8">
-            <Link 
-              href="/"
-              className="text-secondary hover:text-primary transition-colors underline"
-            >
-              ← Back to Home
-            </Link>
           </div>
         </div>
       </div>

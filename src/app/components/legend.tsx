@@ -14,7 +14,6 @@ import * as THREE from "three";
 function ParticlesField() {
   const ref = useRef<THREE.Points>(null);
   const mouse = useMousePosition();
-  const { size } = useThree();
   
   const particlesCount = useMemo(() => {
     const isMobile = window.innerWidth <= 768;

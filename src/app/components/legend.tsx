@@ -2,12 +2,12 @@
 
 import { useRef, useMemo, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Text3D, useTexture, Points, PointMaterial, Center } from "@react-three/drei";
+import { Text3D, useTexture } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
-import { useLenis } from "@/lib/lenis";
+import { useLenis } from "lenis/react";
 import { useMousePosition } from "@/lib/mouse";
 import { randomGaussian } from "@/lib/math";
-import { HolographicShaderOverride } from "@/lib/shaders/holographic_rainbow";
+import { HolographicShaderOverride } from "@/lib/shaders/holographic-rainbow";
 import { calculateRepulsion } from "@/lib/three";
 import * as THREE from "three";
 
@@ -20,10 +20,11 @@ function ParticlesField() {
     return isMobile ? 800 : 1500;
   }, []);
 
-  const { positions, colors, speeds } = useMemo(() => {
+  const { positions, colors, speeds, velocities } = useMemo(() => {
     const positions = new Float32Array(particlesCount * 3);
     const colors = new Float32Array(particlesCount * 4);
     const speeds = new Float32Array(particlesCount);
+    const velocities = new Float32Array(particlesCount * 2);
     
     for (let i = 0; i < particlesCount; i++) {
       const i3 = i * 3;
@@ -41,7 +42,7 @@ function ParticlesField() {
       colors[i4 + 3] = 0; // a
     }
     
-    return { positions, colors, speeds };
+    return { positions, colors, speeds, velocities };
   }, [particlesCount]);
 
   useFrame(({ camera }) => {
@@ -51,8 +52,9 @@ function ParticlesField() {
     const colors = ref.current.geometry.attributes.color.array as Float32Array;
     
     for (let i = 0; i < particlesCount; i++) {
-      const i3 = i * 3;
-      const i4 = i * 4;
+      const i3 = i * 3; // positions
+      const i4 = i * 4; // colours
+      const i2 = i * 2; // velocities
       
       const [repulsionX, repulsionY] = calculateRepulsion(
         positions[i3],
@@ -62,10 +64,13 @@ function ParticlesField() {
         mouse.y,
         camera as THREE.PerspectiveCamera,
       );
+
+      velocities[i2] = repulsionX;
+      velocities[i2 + 1] = repulsionY;
       
       positions[i3 + 2] += speeds[i];
-      positions[i3] += repulsionX;
-      positions[i3 + 1] += repulsionY;
+      positions[i3] += velocities[i2];
+      positions[i3 + 1] += velocities[i2 + 1];
       
       // Fade in particles
       if (colors[i4 + 3] < 1) {
@@ -78,6 +83,8 @@ function ParticlesField() {
         positions[i3 + 1] = randomGaussian(0, 10);
         positions[i3 + 2] = -40;
         colors[i4 + 3] = 0;
+        velocities[i2] = 0;
+        velocities[i2 + 1] = 0;
       }
     }
     
@@ -124,6 +131,10 @@ function HolographicText() {
     if (ref.current.geometry && !ref.current.userData.centered) {
       ref.current.geometry.center();
       ref.current.userData.centered = true;
+    }
+    
+    if (materialRef.current && materialRef.current.userData.shader) {
+      materialRef.current.userData.shader.uniforms.time.value = state.clock.getElapsedTime();
     }
     
     const isMobile = window.innerWidth <= 768;
@@ -241,7 +252,7 @@ export default function Legend() {
       {/* Button to scroll to main content */}
       <button
         onClick={scrollToMain}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full p-3 transition-all duration-300 animate-bounce cursor-pointer"
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full p-3 transition-all duration-300 animate-bounce cursor-pointer hover:animation-paused"
         aria-label="Scroll to main content"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

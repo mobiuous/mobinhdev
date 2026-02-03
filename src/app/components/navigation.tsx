@@ -29,10 +29,12 @@ export default function Navigation({ items = defaultNavItems }: NavigationProps)
   const { theme } = useTheme();
 
   useEffect(() => {
-    setIsVisible(window.scrollY > 200 || pathname !== "/");
+    const SCROLL_THRESHOLD = 700;
+    
+    setIsVisible(window.scrollY > SCROLL_THRESHOLD || pathname !== "/");
     
     const handleScroll = () => {
-        setIsVisible(window.scrollY > 200 || pathname !== "/");
+        setIsVisible(window.scrollY > SCROLL_THRESHOLD || pathname !== "/");
     };
 
     window.addEventListener('scroll', handleScroll);

@@ -70,14 +70,14 @@ export default function DottedGridBackground() {
 
           const finalY = y + rippleOffset;
           
-          const baseOpacity = (theme === 'light' ? 0.24 : 0.09) + depthFactor * 0.4;
+          const baseOpacity = 0.1 + depthFactor * 0.7;
           const waveIntensity = Math.abs(oceanWave);
-          const opacity = Math.min(baseOpacity + waveIntensity * 0.5, 1.0);
+          const opacity = Math.min(baseOpacity + waveIntensity * 0.5, 1.0) * 0.67;
 
           ctx.save();
           ctx.globalAlpha = opacity;
 
-          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--contrast-color').trim() || '#000000';
+          ctx.fillStyle = theme === 'light' ? '#000000' : '#FFFFFF';
           
           ctx.beginPath();
           ctx.arc(worldX, finalY, (theme === 'light' ? dotSize * 1.3 : dotSize) * scale, 0, Math.PI * 2);
@@ -93,9 +93,11 @@ export default function DottedGridBackground() {
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
       }
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     };
   }, [theme]);
@@ -103,7 +105,7 @@ export default function DottedGridBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 pointer-events-none opacity-60 z-0"
+      className="absolute inset-0 pointer-events-none z-0"
     />
   );
 }

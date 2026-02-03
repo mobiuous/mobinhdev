@@ -43,43 +43,6 @@ body {
   -ms-transition: color 0.3s ease;
 }
 
-@layer utilities {
-  .bg-primary {
-    transition: background-color 0.3s ease;
-    -webkit-transition: background-color 0.3s ease;
-    -ms-transition: background-color 0.3s ease;
-    background-color: var(--bg-primary);
-  }
-
-  .bg-accent {
-    background-color: var(--bg-accent);
-  }
-
-  .bg-accent-dark {
-    background-color: #a14939
-  }
-
-  .text-primary {
-    color: var(--text-primary);
-  }
-
-  .text-secondary {
-    color: var(--text-secondary);
-  }
-
-  .accent {
-    color: var(--accent);
-  }
-
-  .accent-secondary {
-    color: var(--accent-secondary);
-  }
-
-  .contrast-color {
-    color: var(--contrast-color);
-  }
-}
-
 @keyframes pulse-expand {
   0% {
     transform: scale(0);
@@ -101,4 +64,44 @@ body {
   z-index: 9999;
   transform-origin: center;
   animation: pulse-expand 0.44s ease-out forwards;
+}
+
+ /* utilities */
+@utility bg-primary {
+  transition: background-color 0.3s ease;
+  -webkit-transition: background-color 0.3s ease;
+  -ms-transition: background-color 0.3s ease;
+  background-color: var(--bg-primary);
+}
+
+@utility bg-accent {
+  background-color: var(--bg-accent);
+}
+
+@utility bg-accent-dark {
+  background-color: #a14939
+}
+
+@utility text-primary {
+  color: var(--text-primary);
+}
+
+@utility text-secondary {
+  color: var(--text-secondary);
+}
+
+@utility accent {
+  color: var(--accent);
+}
+
+@utility accent-secondary {
+  color: var(--accent-secondary);
+}
+
+@utility contrast-color {
+  color: var(--contrast-color);
+}
+
+@utility animation-paused {
+  animation-play-state: paused !important;
 }

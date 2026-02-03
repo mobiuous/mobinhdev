@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ReactLenis } from "@/lib/lenis"
+import { ReactLenis } from "lenis/react"
 import { ThemeProvider } from "./components/theme-context";
-import { geistSans , geistMono } from "./components/fonts";
 
 export const metadata: Metadata = {
   title: "Mobin H",
@@ -16,9 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body>
         <ThemeProvider>
           <ReactLenis root>
             {children}

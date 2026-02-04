@@ -18,8 +18,8 @@ interface NavigationProps {
 const defaultNavItems: NavItem[] = [
     { label: "Home", href: "/" },
     { label: "About", href: "/about" },
-    { label: "Test", href: "/test" },
-    { label: "LongTestNameTest", href: "/test2" },
+    { label: "Projects", href: "/projects" },
+    { label: "Not Found", href: "/404" },
 ];
 
 export default function Navigation({ items = defaultNavItems }: NavigationProps) {
@@ -61,23 +61,20 @@ export default function Navigation({ items = defaultNavItems }: NavigationProps)
 
         {/* Mobile navbar */}
         <div className={`fixed top-0 left-0 h-full w-64 shadow-xl z-40 transition-transform duration-300 ease-in-out md:hidden
-                       ${theme === 'light' ? "bg-white/60" : "bg-black/75"} backdrop-blur-md ${
-        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
+                        slight-accent backdrop-blur-md ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="flex flex-col space-y-4 pt-20 px-6">
                 {items.map((item) => (
                     <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`block py-2 text-lg border-b transition-colors duration-200 ${geistSans.className}
-                                ${theme === 'light' ? "border-black/50" : "border-white/50"} ${
-                        pathname === item.href
-                        ? "text-blue-600 font-semibold"
-                        : theme === 'light' ? "text-gray-800 hover:text-blue-600" : "text-gray-200 hover:text-blue-400"
-                    }`}
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`block py-2 text-lg border-b transition-colors duration-200 ${geistSans.className}
+                                    ${theme === 'light' ? "border-black/50" : "border-white/50"} ${
+                                        pathname === item.href
+                                        ? "text-blue-600 font-semibold"
+                                        : theme === 'light' ? "text-gray-800 hover:text-blue-600" : "text-gray-200 hover:text-blue-400"}`}
                     >
-                        {item.label}
+                            {item.label}
                     </Link>
                 ))}
             </div>
@@ -85,18 +82,17 @@ export default function Navigation({ items = defaultNavItems }: NavigationProps)
       
         {/* Desktop navbar */}
         <nav className={`fixed top-4 z-190 w-full transition-transform duration-800 ease-in-out hidden md:block ${
-            isVisible ? 'translate-y-0' : '-translate-y-20'
-        }`}>
+            isVisible ? 'translate-y-0' : '-translate-y-20'}`}>
             <div className={`flex items-center justify-center space-x-10 mx-auto max-w-4xl h-14 rounded-xl shadow-lg
-                            ${theme === 'light' ? "bg-white shadow-gray-900/20" : "bg-stone-950"}`}>
+                            slight-accent`}>
                 {items.map((item) => (
                     <Link
                         key={item.href}
                         href={item.href}
-                        className={`text-primary text-md hover:underline underline-offset-3 ${geistSans.className} ${
+                        className={`text-primary text-md underline-offset-3 ${geistSans.className} ${
                         pathname === item.href
                             ? "font-bold"
-                            : ""
+                            : "hover:underline"
                         }`} 
                     >
                         {item.label}

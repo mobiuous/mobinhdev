@@ -16,6 +16,7 @@
   --bg-accent: #bc5644;
   --accent-secondary: #d7db99;
   --contrast-color: #000000;
+  --slight-accent: #f7efef;
 }
 
 [data-theme="dark"] {
@@ -26,6 +27,7 @@
   --bg-accent: #bb5644;
   --accent-secondary: #616624;
   --contrast-color: #ffffff;
+  --slight-accent: #080707;
 }
 
 [data-theme="dark"] img[src$=".svg"] {
@@ -100,6 +102,10 @@ body {
 
 @utility contrast-color {
   color: var(--contrast-color);
+}
+
+@utility slight-accent {
+  background-color: var(--slight-accent);
 }
 
 @utility animation-paused {

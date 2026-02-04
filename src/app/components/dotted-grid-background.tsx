@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useTheme } from "./theme-context";
 
-export default function DottedGridBackground() {
+export default function DottedGridBackground({fixed = false}: {fixed?: boolean}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { theme } = useTheme();
 
@@ -105,7 +105,7 @@ export default function DottedGridBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 pointer-events-none z-0"
+      className={`${fixed ? "fixed" : "absolute"} inset-0 pointer-events-none w-full`}
     />
   );
 }

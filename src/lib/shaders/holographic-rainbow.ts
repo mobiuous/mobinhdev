@@ -12,6 +12,7 @@ export const HolographicShaderOverride = (material: THREE.MeshBasicMaterial, cur
         `
     );
 
+    // magic
     currentShader.fragmentShader = `
         varying vec2 vUv;
 
@@ -104,7 +105,6 @@ export const HolographicShaderOverride = (material: THREE.MeshBasicMaterial, cur
         normal = normalize(normal);`
     );
 
-    // Vertex: right after computing objectNormal
     currentShader.vertexShader = currentShader.vertexShader.replace(
         '#include <beginnormal_vertex>',
         `#include <beginnormal_vertex>

@@ -1,269 +1,215 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useLenis } from "@/lib/lenis"
-import * as THREE from "three";
-import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
-import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js"
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
-import { VignetteShader } from "three/examples/jsm/Addons.js";
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-
-import { getFrustumEdgesAtZ , calculateRepulsion, getSkyGradient, calculateParticleCount } from "@/lib/three";
+import { useRef, useMemo, Suspense } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Text3D, useTexture } from "@react-three/drei";
+import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
+import { useLenis } from "lenis/react";
 import { useMousePosition } from "@/lib/mouse";
 import { randomGaussian } from "@/lib/math";
-import { HolographicShaderOverride } from "@/lib/shaders/holographic_rainbow";
+import { HolographicShaderOverride } from "@/lib/shaders/holographic-rainbow";
+import { calculateRepulsion } from "@/lib/three";
+import * as THREE from "three";
 
-export default function Legend() {
-  const mountRef = useRef<HTMLDivElement>(null);
-  const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+function ParticlesField() {
+  const ref = useRef<THREE.Points>(null);
   const mouse = useMousePosition();
-  const isMobile = useRef(false);
-  const lenis = useLenis();
-
-  useEffect(() => {
-    isMobile.current = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent)
-      || window.innerWidth <= 768;
+  
+  const particlesCount = useMemo(() => {
+    const isMobile = window.innerWidth <= 768;
+    return isMobile ? 800 : 1500;
   }, []);
 
-  useEffect(() => {
-    if (mouse.x !== null && mouse.y !== null) {
-      mouseRef.current = { x: mouse.x, y: mouse.y };
-    }
-  }, [mouse]);
-
-  useEffect(() => {
-    if (!mountRef.current) return;
-
-    const mainScene = new THREE.Scene();
-
-    const camera = new THREE.PerspectiveCamera(
-      isMobile.current ? 60 : 75,
-      mountRef.current.clientWidth / mountRef.current.clientHeight,
-      0.1,
-      4000
-    );
-
-    camera.position.z = 0;
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+  const { positions, colors, speeds, velocities } = useMemo(() => {
+    const positions = new Float32Array(particlesCount * 3);
+    const colors = new Float32Array(particlesCount * 4);
+    const speeds = new Float32Array(particlesCount);
+    const velocities = new Float32Array(particlesCount * 2);
     
-    const renderPass = new RenderPass(mainScene, camera);
-    const mainComposer = new EffectComposer(renderer);
-    const vignettePass = new ShaderPass(VignetteShader);
-    const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 0.38, 0.75, 0.85 );
-    const outputPass = new OutputPass();
+    for (let i = 0; i < particlesCount; i++) {
+      const i3 = i * 3;
+      const i4 = i * 4;
+      
+      positions[i3] = randomGaussian(0, 15);     // x
+      positions[i3 + 1] = randomGaussian(0, 10); // y  
+      positions[i3 + 2] = Math.random() * -40 - 10; // z
+      
+      speeds[i] = Math.random() * 0.1 + 0.03;
+      
+      colors[i4] = 1;     // r
+      colors[i4 + 1] = 1; // g
+      colors[i4 + 2] = 1; // b
+      colors[i4 + 3] = 0; // a
+    }
+    
+    return { positions, colors, speeds, velocities };
+  }, [particlesCount]);
 
-    vignettePass.uniforms.offset.value = 0.8;
-    vignettePass.uniforms.darkness.value = 1.05;
+  useFrame(({ camera }) => {
+    if (!ref.current) return;
+    
+    const positions = ref.current.geometry.attributes.position.array as Float32Array;
+    const colors = ref.current.geometry.attributes.color.array as Float32Array;
+    
+    for (let i = 0; i < particlesCount; i++) {
+      const i3 = i * 3; // positions
+      const i4 = i * 4; // colours
+      const i2 = i * 2; // velocities
+      
+      const [repulsionX, repulsionY] = calculateRepulsion(
+        positions[i3],
+        positions[i3 + 1],
+        positions[i3 + 2],
+        mouse.x,
+        mouse.y,
+        camera as THREE.PerspectiveCamera,
+      );
 
-    mainComposer.addPass(renderPass);
-    mainComposer.addPass(bloomPass);
-    mainComposer.addPass(vignettePass);
-    mainComposer.addPass(outputPass);
-    mountRef.current.appendChild(renderer.domElement);
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    mainScene.add(ambientLight);
-
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
-    keyLight.position.set(5, 5, 5);
-    mainScene.add(keyLight);
-
-    const fillLight = new THREE.DirectionalLight(0xffffff, 1.3);
-    fillLight.position.set(-5, 2, -5);
-    mainScene.add(fillLight);
-
-    const rimLight = new THREE.DirectionalLight(0x88ccff, 2);
-    rimLight.position.set(0, 5, -30);
-    mainScene.add(rimLight);
-
-    const sky = getSkyGradient(
-      new THREE.Color(0x111112), 
-      new THREE.Color(0x27273b), 
-      2000
-    );
-    mainScene.add(sky);
-
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = calculateParticleCount(mountRef.current.clientWidth, mountRef.current.clientHeight);
-    const positionBuffer = new Float32Array(particlesCount * 3);
-    const colorBuffer = new Float32Array(particlesCount * 4);
-    const particleSpeeds = new Float32Array(particlesCount);
-    const visibleArea = getFrustumEdgesAtZ(camera, 0);
-
-    const spawnParticles = (p_count: number) => {
-      for (let i = 0; i < p_count; i++) {
-        const centerX = (visibleArea.left + visibleArea.right) / 2;
-        const centerY = (visibleArea.top + visibleArea.bottom) / 2;
-        const widthStdDev = (visibleArea.right - visibleArea.left) / 4;
-        const heightStdDev = (visibleArea.top - visibleArea.bottom) / 4;
-
-        // Generate positions with Gaussian distribution
-        positionBuffer[i * 3] = randomGaussian(centerX, widthStdDev);
-        positionBuffer[i * 3 + 1] = randomGaussian(centerY, heightStdDev);
-        positionBuffer[i * 3 + 2] = (Math.random() * -40) - -40;
-        particleSpeeds[i] = (Math.random() * 0.12) + 0.05; // Z Speed
-        colorBuffer[i * 4] = 1.0; // R
-        colorBuffer[i * 4 + 1] = 1.0; // G
-        colorBuffer[i * 4 + 2] = 1.0; // B
-        colorBuffer[i * 4 + 3] = 0.0; // A
+      velocities[i2] = repulsionX;
+      velocities[i2 + 1] = repulsionY;
+      
+      positions[i3 + 2] += speeds[i];
+      positions[i3] += velocities[i2];
+      positions[i3 + 1] += velocities[i2 + 1];
+      
+      // Fade in particles
+      if (colors[i4 + 3] < 1) {
+        colors[i4 + 3] = Math.min(colors[i4 + 3] + 0.01, 1);
+      }
+      
+      // Reset when out of bounds
+      if (positions[i3 + 2] > 0) {
+        positions[i3] = randomGaussian(0, 15);
+        positions[i3 + 1] = randomGaussian(0, 10);
+        positions[i3 + 2] = -40;
+        colors[i4 + 3] = 0;
+        velocities[i2] = 0;
+        velocities[i2 + 1] = 0;
       }
     }
-
-    const clearParticles = () => {
-      positionBuffer.fill(0);
-      colorBuffer.fill(0);
-    }
-
-    spawnParticles(particlesCount);
-
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positionBuffer, 3));
-    particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorBuffer, 4));
-
-    const textureLoader = new THREE.TextureLoader();
-    const particleTexture = textureLoader.load("/img/circle.png");
-
-    const particlesMaterial = new THREE.PointsMaterial({
-        map: particleTexture,
-        size: 0.08,
-        color: 0xffffff,
-        transparent: true,
-        vertexColors: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-        opacity: isMobile.current ? 0.75 : 1,
-    });
-    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-
-    mainScene.add(particlesMesh);
-
-    // Load font + create text
-    const fontLoader = new FontLoader();
-    fontLoader.load("/three_fonts/Lexend_Giga_Regular.json", (font) => {
-      const textGeometry = new TextGeometry("mobin h.", {
-        font: font,
-        size: 3,
-        depth: 0.5,
-        curveSegments: 12,
-        bevelEnabled: true,
-        bevelThickness: 0.2,
-        bevelSize: 0.05,
-        bevelOffset: 0,
-        bevelSegments: 5
-      });
-
-      textGeometry.center();
-
-      const material = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-      });
-
-      material.onBeforeCompile = HolographicShaderOverride.bind(null, material);
-
-      const textMesh = new THREE.Mesh(textGeometry, material);
-      textMesh.position.z = isMobile.current ? -50 : -25;
-
-      mainScene.add(textMesh);
-
-      const animate = () => {
-        requestAnimationFrame(animate);
-
-        if (material.userData.shader) {
-          material.userData.shader.uniforms.time.value = performance.now() * 0.001;
-        }
-
-        // Rotate text to face mouse position except on mobile
-        if (mountRef.current && !isMobile.current) {
-          const xNorm = (mouseRef.current.x / mountRef.current.clientWidth) * 2 - 1;
-          const yNorm = -(mouseRef.current.y / mountRef.current.clientHeight) * 2 + 1;
-          textMesh.rotation.y = xNorm * 0.1;
-          textMesh.rotation.x = yNorm * -0.1;
-        } else if (isMobile.current) {
-          const time = performance.now() * 0.0005;
-          textMesh.rotation.y = Math.sin(time) * 0.1;
-          textMesh.rotation.x = Math.cos(time * 0.8) * 0.05;
-        }
-
-        const positions = particlesGeometry.attributes.position.array;
-        const colors = particlesGeometry.attributes.color.array;
-        const visibleArea = getFrustumEdgesAtZ(camera, -25);
-
-        for (let i = 0; i < particlesCount; i++) {
-          const positionIndex = i * 3;
-          const colorIndex = i * 4;
-
-          const [repulsionX, repulsionY] = calculateRepulsion(
-            positions[positionIndex],
-            positions[positionIndex + 1],
-            positions[positionIndex + 2],
-            mouseRef.current.x,
-            mouseRef.current.y,
-            camera,
-          );
-
-          positions[positionIndex + 2] += particleSpeeds[i];
-
-          positions[positionIndex] += repulsionX;
-          positions[positionIndex + 1] += repulsionY;
-
-          if (colors[colorIndex + 3] < 1.0) {
-              colors[colorIndex + 3] = Math.min(colors[colorIndex + 3] + 0.01, 1.0);
-          }
-
-          if (positions[positionIndex + 2] > 0) {
-            const centerX = (visibleArea.right + visibleArea.left) / 2;
-            const centerY = (visibleArea.top + visibleArea.bottom) / 2;
-            const widthStdDev = (visibleArea.right - visibleArea.left) / 4;
-            const heightStdDev = (visibleArea.top - visibleArea.bottom) / 4;
-            
-            positions[positionIndex] = randomGaussian(centerX, widthStdDev);
-            positions[positionIndex + 1] = randomGaussian(centerY, heightStdDev);
-            positions[positionIndex + 2] = (Math.random() * -40) - 40;
-            colors[colorIndex + 3] = 0.0;
-          }
-        }
-
-        particlesGeometry.attributes.position.needsUpdate = true;
-        particlesGeometry.attributes.color.needsUpdate = true;
-
-        mainComposer.render();
-      };
-
-      animate();
-    });
-
-    const handleResize = () => {
-      if (!mountRef.current) return;
-  
-      const width = mountRef.current.clientWidth;
-      const height = mountRef.current.clientHeight;
     
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
+    ref.current.geometry.attributes.position.needsUpdate = true;
+    ref.current.geometry.attributes.color.needsUpdate = true;
+  });
 
-      renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.setSize(width, height);
-      mainComposer.setSize(width, height);
+  const texture = useTexture("/img/circle.png");
 
-      clearParticles();
-      spawnParticles(calculateParticleCount(mountRef.current.clientWidth, mountRef.current.clientHeight));
-    };
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          args={[positions, 3]}
+        />
+        <bufferAttribute
+          attach="attributes-color"
+          args={[colors, 4]}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        map={texture}
+        size={0.08}
+        transparent
+        vertexColors
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+}
 
-    window.addEventListener('resize', handleResize);
+function HolographicText() {
+  const ref = useRef<THREE.Mesh>(null);
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const mouse = useMousePosition();
+  const { size } = useThree();
+  
+  useFrame((state) => {
+    if (!ref.current) return;
+    
+    // Anchor text to middle point
+    if (ref.current.geometry && !ref.current.userData.centered) {
+      ref.current.geometry.center();
+      ref.current.userData.centered = true;
+    }
+    
+    if (materialRef.current && materialRef.current.userData.shader) {
+      materialRef.current.userData.shader.uniforms.time.value = state.clock.getElapsedTime();
+    }
+    
+    const isMobile = window.innerWidth <= 768;
+    
+    if (!isMobile && mouse.x !== null && mouse.y !== null) {
+      const xNorm = (mouse.x / size.width) * 2 - 1;
+      const yNorm = -(mouse.y / size.height) * 2 + 1;
+      ref.current.rotation.y = xNorm * 0.1;
+      ref.current.rotation.x = yNorm * -0.1;
+    } else if (isMobile) {
+      const time = state.clock.getElapsedTime();
+      ref.current.rotation.y = Math.sin(time * 0.5) * 0.1;
+      ref.current.rotation.x = Math.cos(time * 0.4) * 0.05;
+    }
+  });
 
-    return () => {
-        window.removeEventListener('resize', handleResize);
-        mountRef.current?.removeChild(renderer.domElement);
-        renderer.dispose();
-    };
+  return (
+      <Text3D
+        ref={ref}
+        font="/three_fonts/Lexend_Giga_Regular.json"
+        size={3}
+        height={0.5}
+        position={[0, 0, window.innerWidth <= 768 ? -50 : -25]}
+        bevelEnabled
+        bevelSize={0.05}
+        bevelThickness={0.2}
+        curveSegments={12}
+        bevelSegments={5}
+      >
+        mobin h.
+        <meshBasicMaterial 
+          ref={materialRef}
+          color="white" 
+          onBeforeCompile={(shader) => {
+            if (materialRef.current) {
+              HolographicShaderOverride(materialRef.current, shader);
+            }
+          }} 
+        />
+      </Text3D>
+  );
+}
+
+function Background() {
+  const texture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 256;
+    
+    const context = canvas.getContext('2d')!;
+    const gradient = context.createLinearGradient(0, 0, 0, 256);
+    
+    gradient.addColorStop(0, '#111112');
+    gradient.addColorStop(0.5, '#27273b');
+    gradient.addColorStop(1, '#111112');
+    
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 1, 256);
+    
+    const texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+    return texture;
   }, []);
 
+  return (
+    <mesh scale={[2000, 2000, 2000]}>
+      <sphereGeometry args={[1, 32, 15]} />
+      <meshBasicMaterial map={texture} side={THREE.BackSide} />
+    </mesh>
+  );
+}
+
+export default function Legend() {
+  const lenis = useLenis();
+  
   const scrollToMain = () => {
     const mainSection = document.getElementById('main-content');
     
@@ -277,10 +223,36 @@ export default function Legend() {
   };
 
   return (
-    <div ref={mountRef} className="w-full h-screen relative">
+    <div className="w-full h-screen relative">
+      <Canvas
+        camera={{
+          fov: 75,
+          position: [0, 0, 0],
+          near: 0.1,
+          far: 4000
+        }}
+      >
+        <Suspense fallback={null}>
+          <Background />
+          <ParticlesField />
+          <HolographicText />
+          
+          <ambientLight intensity={0.5} />
+          <directionalLight position={[5, 5, 5]} intensity={1.1} />
+          <directionalLight position={[-5, 2, -5]} intensity={1.3} />
+          <directionalLight position={[0, 5, -30]} intensity={2} color="#88ccff" />
+          
+          <EffectComposer>
+            <Bloom intensity={0.4} radius={0.75} luminanceThreshold={0.3} />
+            <Vignette offset={0.2} darkness={0.9} />
+          </EffectComposer>
+        </Suspense>
+      </Canvas>
+      
+      {/* Button to scroll to main content */}
       <button
         onClick={scrollToMain}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full p-3 transition-all duration-300 animate-bounce cursor-pointer"
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full p-3 transition-all duration-300 animate-bounce cursor-pointer hover:animation-paused"
         aria-label="Scroll to main content"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

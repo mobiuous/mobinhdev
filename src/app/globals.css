@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+.preload * {
+  transition: none !important;
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -ms-transition: none !important;
+  -o-transition: none !important;
+}
+
 :root {
   --bg-primary: #fcf8f8;
   --text-primary: #1c0d0a;
@@ -7,6 +15,8 @@
   --accent: #b2ce75;
   --bg-accent: #bc5644;
   --accent-secondary: #d7db99;
+  --contrast-color: #000000;
+  --slight-accent: #f7efef;
 }
 
 [data-theme="dark"] {
@@ -16,6 +26,8 @@
   --accent: #6f8c31;
   --bg-accent: #bb5644;
   --accent-secondary: #616624;
+  --contrast-color: #ffffff;
+  --slight-accent: #080707;
 }
 
 [data-theme="dark"] img[src$=".svg"] {
@@ -28,37 +40,9 @@
 
 body {
   background-color: var(--bg-primary);
-  color: var(--text-primary);
   transition: color 0.3s ease;
   -webkit-transition: color 0.3s ease;
   -ms-transition: color 0.3s ease;
-}
-
-.bg-primary {
-  transition: background-color 0.3s ease;
-  -webkit-transition: background-color 0.3s ease;
-  -ms-transition: background-color 0.3s ease;
-  background-color: var(--bg-primary);
-}
-
-.bg-accent {
-  background-color: var(--bg-accent);
-}
-
-.text-primary {
-  color: var(--text-primary);
-}
-
-.text-secondary {
-  color: var(--text-secondary);
-}
-
-.accent {
-  color: var(--accent);
-}
-
-.accent-secondary {
-  color: var(--accent-secondary);
 }
 
 @keyframes pulse-expand {
@@ -82,4 +66,48 @@ body {
   z-index: 9999;
   transform-origin: center;
   animation: pulse-expand 0.44s ease-out forwards;
+}
+
+ /* utilities */
+@utility bg-primary {
+  transition: background-color 0.3s ease;
+  -webkit-transition: background-color 0.3s ease;
+  -ms-transition: background-color 0.3s ease;
+  background-color: var(--bg-primary);
+}
+
+@utility bg-accent {
+  background-color: var(--bg-accent);
+}
+
+@utility bg-accent-dark {
+  background-color: #a14939
+}
+
+@utility text-primary {
+  color: var(--text-primary);
+}
+
+@utility text-secondary {
+  color: var(--text-secondary);
+}
+
+@utility accent {
+  color: var(--accent);
+}
+
+@utility accent-secondary {
+  color: var(--accent-secondary);
+}
+
+@utility contrast-color {
+  color: var(--contrast-color);
+}
+
+@utility slight-accent {
+  background-color: var(--slight-accent);
+}
+
+@utility animation-paused {
+  animation-play-state: paused !important;
 }

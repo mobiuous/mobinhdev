@@ -10,7 +10,7 @@ export default function CVPage() {
             <div className="flex flex-col items-center justify-center pt-20 md:pt-24 pb-4">
                 <div className="w-full max-w-4xl aspect-[4/5] z-20">
                     <iframe 
-                        src="https://drive.google.com/file/d/1YDcs1gVbVEcx5oIqFbvMNLg0W2t4K2LE/preview?embedded=true&rm=minimal" 
+                        src="https://drive.google.com/file/d/189_AfrAez1ObR3HylqCDy0Snf_wtXIFg/preview?embedded=true&rm=minimal" 
                         className="w-full h-full border-0 overflow-hidden"
                         title="Mobin CV"
                     />

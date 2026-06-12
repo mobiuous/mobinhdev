@@ -21,11 +21,11 @@ export default function Home() {
           />
           <p className={`text-5xl text-primary mb-6 ${inter.className}`}>
             <span className="text-secondary">Hello!</span> I'm Mobin<br />
-            <span className="text-3xl">Welcome to my website/portfolio &#128516;</span>
+            <span className="text-3xl">Welcome to my website &#128516;</span>
           </p>
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-8">
             <a
-              href="https://github.com/mobieto"
+              href="https://github.com/mobiuous"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -45,13 +45,8 @@ export default function Home() {
             >
               <img src="/img/linkedin.svg" alt="LinkedIn" className="inline w-5 h-5 mr-1 mb-1 transition-all duration-200 hover:scale-120" />
             </a>
-            <a
-              href="mailto:hmobin2004@gmail.com"
-            >
-              <img src="/img/email.svg" alt="Email" className="inline w-5 h-5 mr-1 mb-1 transition-all duration-200 hover:scale-120" />
-            </a>
           </div>
-          <p className={`text-primary text-md mt-6 ${inter.className}`}>Check out my CV <a href="/cv" className="text-secondary font-bold hover:underline">here</a></p>
+          {/*<p className={`text-primary text-sm mt-6 ${inter.className}`}><a href="/cv" className="text-secondary font-bold hover:underline">Check out my CV</a></p> */}
         </div>
       </div>
     </BaseLayout>

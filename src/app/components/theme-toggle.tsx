@@ -8,7 +8,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className={`fixed top-4 right-4 z-200 p-3 rounded-full ${theme === 'light' ? 'bg-gray-900' : 'bg-gray-300'} shadow-lg cursor-pointer`}
+      className={`z-200 p-3 rounded-full ${theme === 'light' ? 'bg-gray-900' : 'bg-gray-300'} shadow-lg cursor-pointer`}
       aria-label="Toggle theme"
     >
       {theme === 'light' ? (

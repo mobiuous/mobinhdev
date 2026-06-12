@@ -5,10 +5,10 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Text3D, useTexture } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import { useLenis } from "lenis/react";
-import { useMousePosition } from "@/lib/mouse";
-import { randomGaussian } from "@/lib/math";
-import { HolographicShaderOverride } from "@/lib/shaders/holographic-rainbow";
-import { calculateRepulsion } from "@/lib/three";
+import { useMousePosition } from "@/util/mouse";
+import { randomGaussian } from "@/util/math";
+import { HolographicShaderOverride } from "@/util/shaders/holographic-rainbow";
+import { calculateRepulsion } from "@/util/three";
 import * as THREE from "three";
 
 function ParticlesField() {

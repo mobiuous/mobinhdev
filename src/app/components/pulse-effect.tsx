@@ -46,7 +46,7 @@ export function PulseEffect() {
       }, 800);
     };
 
-    document.addEventListener("click", handleClick);
+    document.addEventListener("mousedown", handleClick);
 
     const animate = () => {
       const now = performance.now();
@@ -58,7 +58,7 @@ export function PulseEffect() {
     animate();
 
     return () => {
-      document.removeEventListener("click", handleClick);
+      document.removeEventListener("mousedown", handleClick);
 
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);

@@ -2,6 +2,7 @@ import React from 'react';
 import { PulseEffect } from "./pulse-effect";
 import ThemeToggle from "./theme-toggle";
 import Navigation from "./navigation";
+import Footer from "./footer";
 import { inter } from './fonts';
 
 interface BaseLayoutProps {
@@ -14,19 +15,12 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
             <PulseEffect />
 
             <header>
-                <ThemeToggle />
                 <Navigation />
             </header>
             <main>
                 {children}
             </main>
-            <footer className="py-6 mt-12 border-t">
-                <div className="mx-auto max-w-7xl">
-                    <p className={`text-center text-sm text-secondary ${inter.className}`}>
-                        &copy; {new Date().getFullYear()} Mobin H. All rights reserved.
-                    </p>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 };

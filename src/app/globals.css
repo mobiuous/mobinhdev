@@ -45,6 +45,19 @@ body {
   -ms-transition: color 0.3s ease;
 }
 
+.pulse-click {
+  position: fixed;
+  border-radius: 50%;
+  background: rgb(148, 138, 133);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  z-index: 9999;
+  transform-origin: center;
+  animation: pulse-expand 0.44s ease-out forwards;
+}
+
+ /* animations */
 @keyframes blink {
   0%   {opacity: 1;}
   49.99%   {opacity: 1;}
@@ -73,16 +86,26 @@ body {
   }
 }
 
-.pulse-click {
-  position: fixed;
-  border-radius: 50%;
-  background: rgb(148, 138, 133);
-  width: 20px;
-  height: 20px;
-  pointer-events: none;
-  z-index: 9999;
-  transform-origin: center;
-  animation: pulse-expand 0.44s ease-out forwards;
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blur-in {
+  0% {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  100% {
+    opacity: var(--blurEndOpacity, 1);
+    filter: blur(0);
+  }
 }
 
  /* utilities */
@@ -91,6 +114,10 @@ body {
   -webkit-transition: background-color 0.3s ease;
   -ms-transition: background-color 0.3s ease;
   background-color: var(--bg-primary);
+}
+
+@utility border-primary {
+  border-color: var(--text-primary);
 }
 
 @utility bg-accent {

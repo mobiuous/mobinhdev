@@ -21,7 +21,7 @@ export default function Home() {
           />
           <p className={`text-5xl text-primary mb-6 ${inter.className}`}>
             <span className="text-secondary">Hello!</span> I'm Mobin<br />
-            <span className="text-3xl">Welcome to my website &#128516;</span>
+            <span className="text-2xl">Welcome to my website &#128516;</span>
           </p>
           <div className="flex justify-center gap-8">
             <a

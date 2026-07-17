@@ -15,11 +15,17 @@ export default function About() {
       <DottedGridBackground />
 
       <div className="relative flex flex-col items-center min-h-screen overflow-hidden pt-64">
-        <div className="relative max-w-2xl w-full text-center z-20 pb-24">
-          <h1 className={`text-3xl font-bold text-primary ${inter.className}`}>About me</h1>
-          <p className={`text-primary opacity-40 mb-8 text-xs ${inter.className}`}>(Click anywhere to skip)</p>
+        <div className="relative max-w-2xl w-full text-center z-20">
+          <h1 className={`text-3xl font-bold text-primary ${inter.className}`}
+              style={{ animation: "fade-in 1s ease-in-out" }}>
+            About me
+          </h1>
+          <p className={`text-primary opacity-40 mb-8 text-xs ${inter.className}`}
+             style={{ "--blurEndOpacity": 0.4, animation: "blur-in 2s ease-in-out" } as React.CSSProperties}>
+            (Click anywhere to skip)
+          </p>
           
-          <div className="text-left">
+          <div className="text-left"> 
             <TypewriterText
               text={aboutText}
               speed={52}
@@ -28,13 +34,14 @@ export default function About() {
           </div>
         </div>
 
-        <div className="pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2">
-          <button
-            type="button"
-            className="pointer-events-auto rounded-xl bg-accent px-5 py-2 text-sm font-medium text-white shadow-sm"
+        <div className="bottom-24 absolute left-1/2 -translate-x-1/2">
+          <a
+            href="/cv"
+            className="pointer-events-auto px-5 py-2 text-md font-medium text-secondary hover:underline"
+            style={{ animation: "blur-in 2s ease-in-out" }}
           >
-            My CV
-          </button>
+            Check out my CV
+          </a>
         </div>
       </div>
     </BaseLayout>

@@ -19,7 +19,6 @@ const defaultNavItems: NavItem[] = [
     { label: "Home", href: "/" },
     { label: "About", href: "/about" },
     { label: "Projects", href: "/projects" },
-    { label: "Not Found", href: "/404" },
 ];
 
 export default function Navigation({ items = defaultNavItems }: NavigationProps) {
@@ -29,7 +28,7 @@ export default function Navigation({ items = defaultNavItems }: NavigationProps)
   const { theme } = useTheme();
 
   useEffect(() => {
-    const SCROLL_THRESHOLD = 700;
+    const SCROLL_THRESHOLD = 300;
     
     setIsVisible(window.scrollY > SCROLL_THRESHOLD || pathname !== "/");
     

@@ -1,19 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface TypewriterTextProps {
     text: string;
     className?: string;
     speed?: number;
+    onComplete?: () => void;
 }
 
-export default function TypewriterText({ text, className = "", speed = 32 }: TypewriterTextProps) {
+export default function TypewriterText({ text, className = "", speed = 32, onComplete }: TypewriterTextProps) {
     const [visibleText, setVisibleText] = useState("");
     const [skipTyping, setSkipTyping] = useState(false);
+    const completionNotified = useRef(false);
     const isComplete = visibleText.length >= text.length;
 
     useEffect(() => {
+        completionNotified.current = false;
         setSkipTyping(false);
     }, [text]);
 
@@ -67,6 +70,15 @@ export default function TypewriterText({ text, className = "", speed = 32 }: Typ
             }
         };
     }, [skipTyping, speed, text]);
+
+    useEffect(() => {
+        if (!isComplete || completionNotified.current) {
+            return;
+        }
+
+        completionNotified.current = true;
+        onComplete?.();
+    }, [isComplete, onComplete]);
 
     return (
         <p className={className}>

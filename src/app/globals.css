@@ -45,6 +45,13 @@ body {
   -ms-transition: color 0.3s ease;
 }
 
+a[class~="extern-link-icon"]::after {
+  content: ' ⧉';
+  font-size: 0.8em;
+  display: inline-block;
+  vertical-align: super;
+}
+
 .pulse-click {
   position: fixed;
   border-radius: 50%;

@@ -19,6 +19,7 @@ const defaultNavItems: NavItem[] = [
     { label: "Home", href: "/" },
     { label: "About", href: "/about" },
     { label: "Projects", href: "/projects" },
+    { label: "Blog", href: "/blog" },
 ];
 
 export default function Navigation({ items = defaultNavItems }: NavigationProps) {
@@ -82,7 +83,7 @@ export default function Navigation({ items = defaultNavItems }: NavigationProps)
         {/* Desktop navbar */}
         <nav className={`fixed top-4 z-190 w-full transition-transform duration-800 ease-in-out hidden md:block ${
             isVisible ? 'translate-y-0' : '-translate-y-20'}`}>
-            <div className={`flex items-center justify-center space-x-10 mx-auto max-w-4xl h-14 rounded-xl shadow-lg
+            <div className={`flex items-center justify-center space-x-10 mx-auto max-w-4xl h-14 rounded-2xl shadow-lg
                             slight-accent`}>
                 {items.map((item) => (
                     <Link

@@ -13,6 +13,7 @@ const footerLinks: FooterLink[] = [
     { label: "About", href: "/about" },
     { label: "Projects", href: "/projects" },
     { label: "CV", href: "/cv" },
+    { label: "Blog", href: "/blog" },
 ];
 
 const socialLinks: FooterLink[] = [
@@ -38,7 +39,7 @@ export default function Footer() {
                     <p className={`text-sm font-semibold uppercase tracking-[0.2em] text-secondary ${inter.className}`}>
                         Explore
                     </p>
-                    <ul className="space-y-2">
+                    <ul className="space-y-1">
                         {footerLinks.map((link) => (
                             <li key={link.href}>
                                 <Link

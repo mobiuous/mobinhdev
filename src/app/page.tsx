@@ -17,7 +17,7 @@ export default function Home() {
             alt="Profile"
             width={182}
             height={182}
-            className="rounded-full mx-auto mb-6 select-none"
+            className="rounded-full mx-auto mb-6 mt-12 select-none"
           />
           <p className={`text-5xl text-primary mb-6 ${inter.className}`}>
             <span className="text-secondary">Hello!</span> I'm Mobin<br />
@@ -46,7 +46,13 @@ export default function Home() {
               <img src="/img/linkedin.svg" alt="LinkedIn" className="inline w-5 h-5 mr-1 mb-1 transition-all duration-200 hover:scale-120" />
             </a>
           </div>
-          {/*<p className={`text-primary text-sm mt-6 ${inter.className}`}><a href="/cv" className="text-secondary font-bold hover:underline">Check out my CV</a></p> */}
+
+          <a
+            href="/contact"
+            className={`cta-gradient mt-8 inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(201, 86, 66, 0.28)] transition-all duration-150 ease-out hover:-translate-y-1 hover:scale-[1.03] hover:shadow-[0_18px_36px_rgba(201, 86, 66, 0.38)] active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffb347]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${inter.className}`}
+          >
+            Get in touch
+          </a>
         </div>
       </div>
     </BaseLayout>

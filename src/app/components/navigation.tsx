@@ -18,6 +18,7 @@ interface NavigationProps {
 const defaultNavItems: NavItem[] = [
     { label: "Home", href: "/" },
     { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" },
     { label: "Projects", href: "/projects" },
     { label: "Blog", href: "/blog" },
 ];

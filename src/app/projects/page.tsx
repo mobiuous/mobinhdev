@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
+import * as THREE from "three";
 import BaseLayout from "../components/base-layout";
 import DottedGridBackground from "../components/dotted-grid-background";
-import { inter } from "../components/fonts";
 
 const projects = [
   {
@@ -46,98 +48,135 @@ const projects = [
   },
 ];
 
+const cubePositions: [number, number, number][] = [
+  [-3.5, -0.2, 0],
+  [0, 0.6, 0.1],
+  [3.3, -0.5, 0.5],
+];
+
+const cubeColors = ["#bc5644", "#b2ce75", "#d7db99"];
+
+interface ProjectCubeProps {
+  project: (typeof projects)[number];
+  index: number;
+  selected: boolean;
+  onSelect: () => void;
+}
+
+function ProjectCube({ project, index, selected, onSelect }: ProjectCubeProps) {
+  const cubeRef = useRef<THREE.Mesh>(null);
+  const basePosition = cubePositions[index];
+
+  useFrame(({ clock }) => {
+    if (!cubeRef.current) return;
+
+    const time = clock.getElapsedTime();
+    cubeRef.current.position.y = basePosition[1] + Math.sin(time * 1.2 + index) * 0.18;
+    cubeRef.current.rotation.x = time * (0.16 + index * 0.025);
+    cubeRef.current.rotation.y = time * (0.22 + index * 0.035);
+  });
+
+  return (
+    <group position={basePosition}>
+      <mesh ref={cubeRef} castShadow onClick={onSelect}>
+        <boxGeometry args={[1.65, 1.65, 1.65]} />
+        <meshStandardMaterial
+          color={cubeColors[index]}
+          emissive={cubeColors[index]}
+          emissiveIntensity={selected ? 0.25 : 0.06}
+          roughness={0.3}
+          metalness={0.2}
+        />
+      </mesh>
+      <Html center position={[0, 1.2, 0]} distanceFactor={8}>
+        <button
+          type="button"
+          onClick={onSelect}
+          className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium backdrop-blur-sm transition ${
+            selected
+              ? "border-secondary bg-accent text-primary"
+              : "border-primary/20 slight-accent text-primary"
+          }`}
+        >
+          {project.title}
+        </button>
+      </Html>
+    </group>
+  );
+}
+
+interface ProjectsSceneProps {
+  selectedId: number | null;
+  onSelect: (id: number) => void;
+}
+
+function ProjectsScene({ selectedId, onSelect }: ProjectsSceneProps) {
+  const sceneRef = useRef<THREE.Group>(null);
+
+  useFrame(({ clock }) => {
+    if (sceneRef.current) {
+      sceneRef.current.rotation.y = Math.sin(clock.getElapsedTime() * 0.22) * 0.12;
+    }
+  });
+
+  return (
+    <group ref={sceneRef}>
+      {projects.map((project, index) => (
+        <ProjectCube
+          key={project.id}
+          project={project}
+          index={index}
+          selected={selectedId === project.id}
+          onSelect={() => onSelect(project.id)}
+        />
+      ))}
+    </group>
+  );
+}
+
 export default function ProjectsPage() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const selectedProject = projects.find((project) => project.id === expandedId) ?? projects[0];
 
   return (
     <BaseLayout>
       <DottedGridBackground fixed={true} />
 
-      <div className="min-h-screen overflow-hidden px-6 py-48">
-        <div className="mx-auto flex max-w-4xl flex-col gap-6">
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-primary"
-                style={{ animation: "fade-in 1s ease-in-out" }}>Projects</h1>
-            <p className={`text-xs text-primary mt-2 ${inter.className}`}
-                style={{ animation: "fade-in 1s ease-in-out" }}>These are some projects I've worked on, click on the orange buttons to learn more about each project!</p>
+      <div className="min-h-screen overflow-hidden px-4 pb-32 pt-36 sm:px-6 sm:pt-44">
+        <div className="mx-auto flex max-w-5xl flex-col items-center">
+          <h1
+            className={`text-3xl mt-4 font-light uppercase tracking-[0.2em] text-secondary`}
+            style={{ animation: "fade-in 1s ease-in-out" }}
+          >
+            Projects
+          </h1>
+
+          <div className="mt-12 h-[28rem] w-full overflow-hidden rounded-[2rem] sm:h-[34rem]">
+            <Canvas
+              camera={{ position: [0, 1.2, 8], fov: 42 }}
+              shadows
+              dpr={[1, 2]}
+              fallback={<div className="flex h-full items-center justify-center text-sm text-primary/70">3D preview unavailable</div>}
+            >
+              <ambientLight intensity={1.2} />
+              <directionalLight castShadow intensity={2.2} position={[4, 6, 5]} />
+              <pointLight intensity={12} distance={12} color="#bc5644" position={[-4, 1, 3]} />
+              <ProjectsScene selectedId={expandedId} onSelect={setExpandedId} />
+            </Canvas>
           </div>
 
-          {projects.map((project, index) => {
-            const isExpanded = project.id === expandedId;
-            const animationDelay = `${index * 250}ms`;
-
-            return (
-              <div
-                key={project.id}
-                className="min-h-[180px] rounded-2xl slight-accent p-8 shadow-lg backdrop-blur-sm"
-                style={{
-                  animation: "fade-in 1s ease-in-out",
-                  animationDelay,
-                  animationFillMode: "both",
-                }}
-              >
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <div className="space-y-2">
-                    <h2 className="text-xl font-semibold text-primary">{project.title}</h2>
-                    <p className="text-sm text-primary">{project.summary}</p>
-                    <div className={`flex mt-4 flex-wrap gap-3`}>
-                      {project.externalLinks?.map((link) => (
-                        <a
-                          key={link.label}
-                          href={link.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[0.675rem] uppercase tracking-wide text-blue-600 hover:underline extern-link-icon"
-                        >
-                          {link.label}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setExpandedId(isExpanded ? null : project.id)}
-                    className="cursor-pointer rounded-full max-w-8 min-w-8 max-h-8 min-h-8 px-1 py-1 text-sm font-light text-white bg-accent hover:bg-[#a14939] transition-colors duration-100"
-                  >
-                    {isExpanded ? "▲" : "▼"}
-                  </button>
-                </div>
-
-                <div className="mt-4 flex justify-center">
-                  <div
-                    className={`border-t border-primary opacity-20 transition-all duration-200 ease-in-out ${
-                      isExpanded ? "w-full" : "w-0"
-                    }`}
-                  />
-                </div>
-
-                <div
-                  className={`flex justify-center overflow-hidden transition-all duration-200 ease-in-out ${
-                    isExpanded ? "mt-4 max-h-96 opacity-100" : "mt-0 max-h-0 opacity-0"
-                  }`}
-                  aria-hidden={!isExpanded}
-                >
-                  <div className="w-full max-w-4xl rounded-xl p-4 text-sm text-primary">
-                    <p className="whitespace-pre-line">{project.details}</p>
-
-                    <div className="flex flex-row justify-between">
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {project.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded-full border border-primary px-2 py-1 text-[0.675rem] uppercase tracking-wide text-primary"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          <section className="mt-8 w-full max-w-xl border-l-2 border-secondary px-5 py-1" aria-live="polite">
+            <p className="text-xs uppercase tracking-[0.25em] text-secondary">Current project</p>
+            <h2 className="mt-3 text-2xl font-semibold text-primary">{selectedProject.title}</h2>
+            <p className="mt-3 whitespace-pre-line text-sm leading-6 text-primary/70">{selectedProject.details}</p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              {selectedProject.tags.map((tag) => (
+                <span key={tag} className="rounded-full border border-primary/15 px-3 py-1 text-xs text-primary/70">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </section>
         </div>
       </div>
     </BaseLayout>

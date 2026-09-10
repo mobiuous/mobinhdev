@@ -27,7 +27,7 @@ export default function Footer() {
         <footer className="mt-6">
             <div className="mx-auto grid max-w-7xl gap-10 px-6 py-12 md:grid-cols-[1.5fr_1fr_1fr] md:px-10 lg:px-12">
                 <div className="space-y-3">
-                    <p className={`text-lg font-semibold text-secondary ${inter.className}`}>
+                    <p className={`text-md font-semibold tracking-[0.2em] uppercase text-secondary ${inter.className}`}>
                         Mobin H.
                     </p>
                     <p className={`max-w-sm text-xs/snug text-primary ${inter.className}`}>

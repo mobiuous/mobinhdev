@@ -16,16 +16,16 @@ export default function AboutIntro() {
   return (
     <div className="relative z-20 w-full max-w-2xl px-4 text-center sm:px-0">
       <h1
-        className={`text-3xl font-bold text-primary ${inter.className}`}
+        className={`text-3xl font-light uppercase tracking-[0.2em] text-secondary`}
         style={{ animation: "fade-in 1s ease-in-out" }}
       >
         About me
       </h1>
       <p
-        className={`text-primary mb-8 text-xs transition-opacity duration-500 ease-out ${inter.className} ${
+        className={`text-primary font-light mb-8 mt-2 text-xs transition-opacity duration-100 ease-out ${inter.className} ${
           showSkipHint ? "opacity-40" : "opacity-0"
         }`}
-        style={{ "--blurEndOpacity": 0.4, animation: "blur-in 2s ease-in-out" } as React.CSSProperties}
+        style={{ "--blurEndOpacity": 0.4, animation: "blur-in 1s ease-in-out" } as React.CSSProperties}
       >
         (Click anywhere to skip)
       </p>
@@ -35,7 +35,7 @@ export default function AboutIntro() {
           text={aboutText}
           speed={52}
           onComplete={() => setShowSkipHint(false)}
-          className={`text-primary mb-4 whitespace-pre-line ${geistSans.className}`}
+          className={`text-primary font-light mb-4 whitespace-pre-line ${geistSans.className}`}
         />
       </div>
     </div>

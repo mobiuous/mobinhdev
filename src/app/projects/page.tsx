@@ -1,8 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import BaseLayout from "../components/base-layout";
 import DottedGridBackground from "../components/dotted-grid-background";
@@ -49,9 +48,9 @@ const projects = [
 ];
 
 const cubePositions: [number, number, number][] = [
-  [-3.5, -0.2, 0],
-  [0, 0.6, 0.1],
-  [3.3, -0.5, 0.5],
+  [-3.5, 0.6, 0],
+  [0, 1.2, 0.1],
+  [3.3, 0.1, 0.5],
 ];
 
 const cubeColors = ["#bc5644", "#b2ce75", "#d7db99"];
@@ -63,45 +62,54 @@ interface ProjectCubeProps {
   onSelect: () => void;
 }
 
+let isSelected = false;
+
 function ProjectCube({ project, index, selected, onSelect }: ProjectCubeProps) {
   const cubeRef = useRef<THREE.Mesh>(null);
-  const basePosition = cubePositions[index];
+  const origin = cubePositions[index];
+  const { camera } = useThree();
 
   useFrame(({ clock }) => {
     if (!cubeRef.current) return;
 
     const time = clock.getElapsedTime();
-    cubeRef.current.position.y = basePosition[1] + Math.sin(time * 1.2 + index) * 0.18;
-    cubeRef.current.rotation.x = time * (0.16 + index * 0.025);
-    cubeRef.current.rotation.y = time * (0.22 + index * 0.035);
+    const targetPosition = selected ? new THREE.Vector3(0, 0, 0) : new THREE.Vector3(...origin);
+    const targetScale = selected ? 2.2 : 1;
+
+    cubeRef.current.position.lerp(targetPosition, 0.08);
+    cubeRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.08);
+
+    if (!selected) {
+      const targetQuaternion = new THREE.Quaternion();
+      targetQuaternion.setFromEuler(new THREE.Euler(time * (0.16 + index * 0.025), time * (0.22 + index * 0.035), 0));
+
+      cubeRef.current.position.y += Math.sin(time * 1.2 + index) * 0.02;
+      cubeRef.current.quaternion.slerp(targetQuaternion, 0.08);
+
+      if (isSelected) {
+        const targetZVector = new THREE.Vector3(cubeRef.current.position.x, cubeRef.current.position.y, cubeRef.current.position.z + 8);
+        cubeRef.current.position.lerp(targetZVector, 0.08);
+      }
+    } else {
+      const targetQuaternion = new THREE.Quaternion();
+
+      cubeRef.current.quaternion.slerp(targetQuaternion, 0.08);
+    }
+
+    camera.lookAt(0, 0, 0);
   });
 
   return (
-    <group position={basePosition}>
-      <mesh ref={cubeRef} castShadow onClick={onSelect}>
-        <boxGeometry args={[1.65, 1.65, 1.65]} />
-        <meshStandardMaterial
-          color={cubeColors[index]}
-          emissive={cubeColors[index]}
-          emissiveIntensity={selected ? 0.25 : 0.06}
-          roughness={0.3}
-          metalness={0.2}
-        />
-      </mesh>
-      <Html center position={[0, 1.2, 0]} distanceFactor={8}>
-        <button
-          type="button"
-          onClick={onSelect}
-          className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium backdrop-blur-sm transition ${
-            selected
-              ? "border-secondary bg-accent text-primary"
-              : "border-primary/20 slight-accent text-primary"
-          }`}
-        >
-          {project.title}
-        </button>
-      </Html>
-    </group>
+    <mesh ref={cubeRef} position={origin} castShadow onClick={(event) => { event.stopPropagation(); onSelect(); }}>
+      <boxGeometry args={[1.65, 1.65, 1.65]} />
+      <meshStandardMaterial
+        color={cubeColors[index]}
+        emissive={cubeColors[index]}
+        emissiveIntensity={selected ? 0.25 : 0.06}
+        roughness={0.3}
+        metalness={0.2}
+      />
+    </mesh>
   );
 }
 
@@ -111,16 +119,8 @@ interface ProjectsSceneProps {
 }
 
 function ProjectsScene({ selectedId, onSelect }: ProjectsSceneProps) {
-  const sceneRef = useRef<THREE.Group>(null);
-
-  useFrame(({ clock }) => {
-    if (sceneRef.current) {
-      sceneRef.current.rotation.y = Math.sin(clock.getElapsedTime() * 0.22) * 0.12;
-    }
-  });
-
   return (
-    <group ref={sceneRef}>
+    <group ref={null}>
       {projects.map((project, index) => (
         <ProjectCube
           key={project.id}
@@ -135,8 +135,7 @@ function ProjectsScene({ selectedId, onSelect }: ProjectsSceneProps) {
 }
 
 export default function ProjectsPage() {
-  const [expandedId, setExpandedId] = useState<number | null>(null);
-  const selectedProject = projects.find((project) => project.id === expandedId) ?? projects[0];
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   return (
     <BaseLayout>
@@ -154,6 +153,7 @@ export default function ProjectsPage() {
           <div className="mt-12 h-[28rem] w-full overflow-hidden rounded-[2rem] sm:h-[34rem]">
             <Canvas
               camera={{ position: [0, 1.2, 8], fov: 42 }}
+              onPointerMissed={() => setSelectedId(null)}
               shadows
               dpr={[1, 2]}
               fallback={<div className="flex h-full items-center justify-center text-sm text-primary/70">3D preview unavailable</div>}
@@ -161,22 +161,17 @@ export default function ProjectsPage() {
               <ambientLight intensity={1.2} />
               <directionalLight castShadow intensity={2.2} position={[4, 6, 5]} />
               <pointLight intensity={12} distance={12} color="#bc5644" position={[-4, 1, 3]} />
-              <ProjectsScene selectedId={expandedId} onSelect={setExpandedId} />
+              <ProjectsScene
+                selectedId={selectedId}
+                onSelect={(id) => {
+                  setSelectedId((currentId) => { 
+                    isSelected = currentId === id;
+                    return (currentId === id ? null : id)
+                  });
+                }}
+              />
             </Canvas>
           </div>
-
-          <section className="mt-8 w-full max-w-xl border-l-2 border-secondary px-5 py-1" aria-live="polite">
-            <p className="text-xs uppercase tracking-[0.25em] text-secondary">Current project</p>
-            <h2 className="mt-3 text-2xl font-semibold text-primary">{selectedProject.title}</h2>
-            <p className="mt-3 whitespace-pre-line text-sm leading-6 text-primary/70">{selectedProject.details}</p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              {selectedProject.tags.map((tag) => (
-                <span key={tag} className="rounded-full border border-primary/15 px-3 py-1 text-xs text-primary/70">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </section>
         </div>
       </div>
     </BaseLayout>

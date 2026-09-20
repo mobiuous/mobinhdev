@@ -45,36 +45,63 @@ const projects = [
       {link: "https://www.github.com/mobiuous/cloudboard", label: "Live Demo"},
     ]
   },
+  {
+    id: 4,
+    title: "Project Three",
+    summary: "A third item to make the vertical list feel more complete.",
+    details:
+      "You can swap these placeholders with real project information once you are ready.",
+    tags: ["Node.js", "API", "Cloud"],
+    externalLinks: [
+      {link: "https://www.github.com/mobiuous/cloudboard", label: "GitHub Repo"},
+      {link: "https://www.github.com/mobiuous/cloudboard", label: "Live Demo"},
+    ]
+  },
 ];
 
 const cubePositions: [number, number, number][] = [
-  [-3.5, 0.6, 0],
-  [0, 1.2, 0.1],
-  [3.3, 0.1, 0.5],
+  [-3.9, 0.6, 0],
+  [0, 1.7, 0.1],
+  [3.9, 0.1, 0.5],
+  [0.1, -1.9, 0.9],
+];
+
+const mobileCubePositions: [number, number, number][] = [
+  [0, 6, 0],
+  [0, 2.1, 0.1],
+  [0, -2.1, 0.5],
+  [0, -6.6, 0.5],
 ];
 
 const cubeColors = ["#bc5644", "#b2ce75", "#d7db99"];
+const cubeSize = 1.65;
+
+function getMobileCubePosition(index: number): [number, number, number] {
+  return mobileCubePositions[index] ?? [0, -5.4 - (index - 3) * 1.8, 0.5];
+}
 
 interface ProjectCubeProps {
   project: (typeof projects)[number];
   index: number;
+  origin: [number, number, number];
+  mobileLayout: boolean;
   selected: boolean;
+  hasSelection: boolean;
   onSelect: () => void;
 }
 
-let isSelected = false;
-
-function ProjectCube({ project, index, selected, onSelect }: ProjectCubeProps) {
+function ProjectCube({ project, index, origin, mobileLayout, selected, hasSelection, onSelect }: ProjectCubeProps) {
   const cubeRef = useRef<THREE.Mesh>(null);
-  const origin = cubePositions[index];
   const { camera } = useThree();
 
   useFrame(({ clock }) => {
     if (!cubeRef.current) return;
 
     const time = clock.getElapsedTime();
-    const targetPosition = selected ? new THREE.Vector3(0, 0, 0) : new THREE.Vector3(...origin);
-    const targetScale = selected ? 2.2 : 1;
+    const targetPosition = selected
+      ? new THREE.Vector3(0, 0, 0)
+      : new THREE.Vector3(origin[0], origin[1], origin[2] - (hasSelection ? 6 : 0));
+    const targetScale = selected ? (mobileLayout ? 2.8 : 2.2) : mobileLayout ? 1.3 : 1;
 
     cubeRef.current.position.lerp(targetPosition, 0.08);
     cubeRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.08);
@@ -85,11 +112,6 @@ function ProjectCube({ project, index, selected, onSelect }: ProjectCubeProps) {
 
       cubeRef.current.position.y += Math.sin(time * 1.2 + index) * 0.02;
       cubeRef.current.quaternion.slerp(targetQuaternion, 0.08);
-
-      if (isSelected) {
-        const targetZVector = new THREE.Vector3(cubeRef.current.position.x, cubeRef.current.position.y, cubeRef.current.position.z + 8);
-        cubeRef.current.position.lerp(targetZVector, 0.08);
-      }
     } else {
       const targetQuaternion = new THREE.Quaternion();
 
@@ -101,10 +123,10 @@ function ProjectCube({ project, index, selected, onSelect }: ProjectCubeProps) {
 
   return (
     <mesh ref={cubeRef} position={origin} castShadow onClick={(event) => { event.stopPropagation(); onSelect(); }}>
-      <boxGeometry args={[1.65, 1.65, 1.65]} />
+      <boxGeometry args={[cubeSize, cubeSize, cubeSize]} />
       <meshStandardMaterial
-        color={cubeColors[index]}
-        emissive={cubeColors[index]}
+        color={cubeColors[index % cubeColors.length]}
+        emissive={cubeColors[index % cubeColors.length]}
         emissiveIntensity={selected ? 0.25 : 0.06}
         roughness={0.3}
         metalness={0.2}
@@ -119,6 +141,23 @@ interface ProjectsSceneProps {
 }
 
 function ProjectsScene({ selectedId, onSelect }: ProjectsSceneProps) {
+  const hasSelection = selectedId !== null;
+  const { camera, size } = useThree();
+  const perspectiveCamera = camera as THREE.PerspectiveCamera;
+
+  const aspect = size.width / size.height;
+  const mobileLayout = aspect < 1.5;
+  const targetFov = mobileLayout ? 50 : 45;
+  const mobilePositions = projects.map((_, index) => getMobileCubePosition(index));
+  const mobileVerticalExtent = Math.max(...mobilePositions.map(([, y]) => Math.abs(y))) + cubeSize;
+  const targetZ = mobileLayout
+    ? Math.max(8, mobileVerticalExtent / Math.tan(THREE.MathUtils.degToRad(targetFov / 2)) + 0.35)
+    : 8;
+
+  perspectiveCamera.fov = targetFov;
+  perspectiveCamera.position.z = targetZ;
+  perspectiveCamera.updateProjectionMatrix();
+
   return (
     <group ref={null}>
       {projects.map((project, index) => (
@@ -126,7 +165,10 @@ function ProjectsScene({ selectedId, onSelect }: ProjectsSceneProps) {
           key={project.id}
           project={project}
           index={index}
+          origin={(mobileLayout ? getMobileCubePosition(index) : cubePositions[index])}
+          mobileLayout={mobileLayout}
           selected={selectedId === project.id}
+          hasSelection={hasSelection}
           onSelect={() => onSelect(project.id)}
         />
       ))}
@@ -150,9 +192,9 @@ export default function ProjectsPage() {
             Projects
           </h1>
 
-          <div className="mt-12 h-[28rem] w-full overflow-hidden rounded-[2rem] sm:h-[34rem]">
+          <div className="relative mt-12 h-[90dvh] min-h-[36rem] w-screen overflow-hidden rounded-[2rem]">
             <Canvas
-              camera={{ position: [0, 1.2, 8], fov: 42 }}
+              camera={{ position: [0, 1.2, 8] }}
               onPointerMissed={() => setSelectedId(null)}
               shadows
               dpr={[1, 2]}
@@ -164,10 +206,7 @@ export default function ProjectsPage() {
               <ProjectsScene
                 selectedId={selectedId}
                 onSelect={(id) => {
-                  setSelectedId((currentId) => { 
-                    isSelected = currentId === id;
-                    return (currentId === id ? null : id)
-                  });
+                  setSelectedId((currentId) => (currentId === id ? null : id));
                 }}
               />
             </Canvas>

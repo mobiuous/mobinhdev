@@ -47,11 +47,6 @@ body {
   -ms-transition: color 0.3s ease;
 }
 
-input, textarea {
-  background-color: #fffaf9;
-  border: 1px solid rgba(188, 86, 68, 0.25);
-}
-
 [data-theme="dark"] input, [data-theme="dark"] textarea {
   background-color: #1d1717;
   border-color: rgba(255, 255, 255, 0.08);
@@ -62,6 +57,17 @@ a[class~="extern-link-icon"]::after {
   font-size: 0.8em;
   display: inline-block;
   vertical-align: super;
+}
+
+#blog-search::-webkit-search-cancel-button {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  cursor: pointer;
+  opacity: 0.5;
+  background:
+    linear-gradient(45deg, transparent 43%, currentColor 44%, currentColor 56%, transparent 57%),
+    linear-gradient(-45deg, transparent 43%, currentColor 44%, currentColor 56%, transparent 57%);
 }
 
 .pulse-click {

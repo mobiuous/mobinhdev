@@ -1,20 +1,14 @@
 version: 1
 mobinh-io:
-  phases:
-    preBuild:
-      commands:
-        - npm install --legacy-peer-deps
-    build:
-      commands:
-        # Critical Next.js fix for Amplify
-        - echo "__NEXT_PRIVATE_PREBUNDLED_REACT=next" >> .env.production
-        
-        - npm run build
   frontend:
-    framework: nextjs
-    config:
-      BuildCommand: npm run build
-      StartCommand: npm run start
+    phases:
+      preBuild:
+        commands:
+          - npm install --legacy-peer-deps
+      build:
+        commands:
+          - echo "__NEXT_PRIVATE_PREBUNDLED_REACT=next" >> .env.production
+          - npm run build
   artifacts:
     baseDirectory: .next
     files:

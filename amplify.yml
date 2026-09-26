@@ -10,6 +10,11 @@ mobinh-io:
         - echo "__NEXT_PRIVATE_PREBUNDLED_REACT=next" >> .env.production
         
         - npm run build
+  frontend:
+    framework: nextjs
+    config:
+      BuildCommand: npm run build
+      StartCommand: npm run start
   artifacts:
     baseDirectory: .next
     files:

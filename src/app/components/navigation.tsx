@@ -72,7 +72,7 @@ export default function Navigation({ items = defaultNavItems }: NavigationProps)
 
         {/* Mobile navbar */}
         <div className={`fixed top-0 left-0 h-full w-64 shadow-xl z-40 transition-transform duration-300 ease-in-out md:hidden
-                        slight-accent backdrop-blur-md ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                bg-transparent backdrop-blur-md ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="flex flex-col space-y-4 pt-20 px-6">
                 {items.map((item) => (
                     <Link
@@ -80,9 +80,9 @@ export default function Navigation({ items = defaultNavItems }: NavigationProps)
                         href={item.href}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={`block py-2 text-lg border-b transition-colors duration-200 ${geistSans.className}
-                                    ${theme === 'light' ? "border-black/50" : "border-white/50"} ${
+                                    ${theme === 'light' ? "border-black/20" : "border-white/20"} ${
                                         pathname === item.href
-                                        ? "text-blue-600 font-semibold"
+                                        ? "text-secondary font-semibold"
                                         : theme === 'light' ? "text-gray-800 hover:text-blue-600" : "text-gray-200 hover:text-blue-400"}`}
                     >
                             {item.label}

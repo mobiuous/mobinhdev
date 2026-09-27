@@ -60,7 +60,7 @@ export default function Blog() {
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             placeholder="Search blogs"
-            className="mt-8 w-full rounded-full px-5 py-3 slight-accent text-primary outline-none placeholder:text-primary/60"
+            className="mt-12 w-full rounded-full px-5 py-3 slight-accent text-primary outline-none placeholder:text-primary/60"
             style={{ animation: "fade-in 1s ease-in-out" }}
           />
 
@@ -88,7 +88,7 @@ export default function Blog() {
               </a>
             ))}
             {filteredBlogs.length === 0 && (
-              <p className="text-center text-xl font-light uppercase tracking-[0.2em] text-secondary">No blogs found</p>
+              <p className="text-center text-xl font-light uppercase tracking-[0.2em] text-secondary mt-18">Nothing here...</p>
             )}
           </div>
         </div>

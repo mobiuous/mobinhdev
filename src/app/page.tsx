@@ -14,14 +14,14 @@ export default function Home() {
         <div className="max-w-xl w-full text-center z-10">
           <Image
             src="/img/profile.png"
-            alt="Profile"
-            width={182}
-            height={182}
-            className="rounded-full mx-auto mb-6 mt-12 select-none"
+            alt="Profile Picture"
+            width={152}
+            height={152}
+            className="h-28 w-28 rounded-full mx-auto mb-6 mt-12 select-none sm:h-[182px] sm:w-[182px]"
           />
-          <p className={`text-5xl text-primary mb-6 ${inter.className}`}>
-            <span className="text-secondary">Hello!</span> I'm Mobin<br />
-            <span className="text-2xl">Welcome to my website &#128516;</span>
+          <p className={`text-3xl text-primary mb-6 sm:text-5xl ${inter.className}`}>
+            <span className="text-secondary">Greetings!</span><br />
+            <span className="text-lg sm:text-2xl">Welcome to my website</span>
           </p>
           <div className="flex justify-center gap-8">
             <a
@@ -29,21 +29,21 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img src="/img/github.svg" alt="GitHub" className="inline w-5 h-5 mr-1 mb-1 transition-all duration-200 hover:scale-120" />
+              <Image src="/img/github.svg" alt="GitHub Profile Link" width={5} height={5} className="inline w-5 h-5 mr-1 mb-1 transition-all duration-200 hover:scale-120" />
             </a>
             <a
               href="https://instagram.com/mobiouos"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img src="/img/instagram.svg" alt="Instagram" className="inline w-5 h-5 mr-1 mb-1 transition-all duration-200 hover:scale-120" />
+              <Image src="/img/instagram.svg" alt="Instagram Profile Link" width={5} height={5} className="inline w-5 h-5 mr-1 mb-1 transition-all duration-200 hover:scale-120" />
             </a>
             <a
               href="https://linkedin.com/in/mobin-hosseini-a266122bb/"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img src="/img/linkedin.svg" alt="LinkedIn" className="inline w-5 h-5 mr-1 mb-1 transition-all duration-200 hover:scale-120" />
+              <Image src="/img/linkedin.svg" alt="LinkedIn Profile Link" width={5} height={5} className="inline w-5 h-5 mr-1 mb-1 transition-all duration-200 hover:scale-120" />
             </a>
           </div>
 

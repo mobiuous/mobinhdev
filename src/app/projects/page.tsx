@@ -92,6 +92,12 @@ interface ProjectCubeProps {
 
 function ProjectCube({ project, index, origin, mobileLayout, selected, hasSelection, onSelect }: ProjectCubeProps) {
   const cubeRef = useRef<THREE.Mesh>(null);
+  const initialRotation = useRef(new THREE.Euler(
+    Math.random() * Math.PI * 2,
+    Math.random() * Math.PI * 2,
+    Math.random() * Math.PI * 2,
+  ));
+  const initialQuaternion = useRef(new THREE.Quaternion().setFromEuler(initialRotation.current));
   const { camera } = useThree();
 
   useFrame(({ clock }) => {
@@ -109,6 +115,7 @@ function ProjectCube({ project, index, origin, mobileLayout, selected, hasSelect
     if (!selected) {
       const targetQuaternion = new THREE.Quaternion();
       targetQuaternion.setFromEuler(new THREE.Euler(time * (0.16 + index * 0.025), time * (0.22 + index * 0.035), 0));
+      targetQuaternion.premultiply(initialQuaternion.current);
 
       cubeRef.current.position.y += Math.sin(time * 1.2 + index) * 0.02;
       cubeRef.current.quaternion.slerp(targetQuaternion, 0.08);
@@ -122,7 +129,7 @@ function ProjectCube({ project, index, origin, mobileLayout, selected, hasSelect
   });
 
   return (
-    <mesh ref={cubeRef} position={origin} castShadow onClick={(event) => { event.stopPropagation(); onSelect(); }}>
+    <mesh ref={cubeRef} position={origin} rotation={initialRotation.current} castShadow onClick={(event) => { event.stopPropagation(); onSelect(); }}>
       <boxGeometry args={[cubeSize, cubeSize, cubeSize]} />
       <meshStandardMaterial
         color={cubeColors[index % cubeColors.length]}
@@ -192,7 +199,7 @@ export default function ProjectsPage() {
             Projects
           </h1>
 
-          <div className="relative mt-12 h-[90dvh] min-h-[36rem] w-screen overflow-hidden rounded-[2rem]">
+          <div className="relative mt-24 h-[90dvh] min-h-[36rem] w-screen overflow-hidden rounded-[2rem]">
             <Canvas
               camera={{ position: [0, 1.2, 8] }}
               onPointerMissed={() => setSelectedId(null)}

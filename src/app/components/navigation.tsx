@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useTheme } from "./theme-context";
 import { geistSans } from "./fonts";
+import { useLenis } from "lenis/react";
 
 interface NavItem {
     label: string;
@@ -28,6 +29,15 @@ export default function Navigation({ items = defaultNavItems }: NavigationProps)
   const [isVisible, setIsVisible] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { theme } = useTheme();
+    const lenis = useLenis();
+
+    useEffect(() => {
+        if (lenis) {
+            lenis.scrollTo(0, { immediate: true });
+        } else {
+            window.scrollTo(0, 0);
+        }
+    }, [pathname, lenis]);
 
   useEffect(() => {
     const SCROLL_THRESHOLD = 300;

@@ -32,7 +32,7 @@ export default function Home() {
               <Image src="/img/github.svg" alt="GitHub Profile Link" width={5} height={5} className="inline w-5 h-5 mr-1 mb-1 transition-all duration-200 hover:scale-120" />
             </a>
             <a
-              href="https://instagram.com/mobiouos"
+              href="https://instagram.com/mobiuous"
               target="_blank"
               rel="noopener noreferrer"
             >

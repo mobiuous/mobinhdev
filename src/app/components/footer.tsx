@@ -18,7 +18,7 @@ const footerLinks: FooterLink[] = [
 
 const socialLinks: FooterLink[] = [
     { label: "GitHub", href: "https://github.com/mobiuous", external: true },
-    { label: "Instagram", href: "https://instagram.com/mobiouos", external: true },
+    { label: "Instagram", href: "https://instagram.com/mobiuous", external: true },
     { label: "LinkedIn", href: "https://linkedin.com/in/mobin-hosseini-a266122bb/", external: true },
 ];
 

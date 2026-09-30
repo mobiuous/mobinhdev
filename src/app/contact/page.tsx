@@ -12,8 +12,8 @@ const contactLinks = [
   },
   {
     label: "Instagram",
-    value: "@mobiouos",
-    href: "https://instagram.com/mobiouos",
+    value: "@mobiuous",
+    href: "https://instagram.com/mobiuous",
   },
 ];
 
